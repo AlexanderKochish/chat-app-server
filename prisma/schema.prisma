@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+   output   = "../src/generated/client"
 }
 
 datasource db {
@@ -22,6 +22,7 @@ enum RoomRole {
 
 model Profile {
   id     String    @id @default(uuid())
+  bgImage String?
   bio    String?
   user   User    @relation(fields: [userId], references: [id])
   userId String    @unique
@@ -30,6 +31,7 @@ model Profile {
 model User {
   id      String      @id @default(uuid())
   email   String   @unique
+  avatar  String?
   name    String?
   password String
   profile Profile?
@@ -37,8 +39,6 @@ model User {
   messages Message[]
   members RoomMembers[]
   createdRooms ChatRoom[]
-
-  Auth Auth[]
 }
 
 model ChatRoom {
@@ -85,15 +85,4 @@ model RoomMembers {
 
   @@id([userId, roomId])
 
-}
-
-model Auth {
-  id        String   @id @default(uuid()) 
-  userId    String            
-  password  String   
-  salt      String   
-  token     String?  
-  createdAt DateTime @default(now())      
-
-  user User @relation(fields: [userId], references: [id])
 }
