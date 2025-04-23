@@ -5,9 +5,19 @@ import { PrismaService } from 'src/services/prisma/prisma.service';
 export class UserService {
   constructor(private prisma: PrismaService) {}
   async findOne(email: string) {
-    const user = await this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { email },
     });
-    return user;
+  }
+
+  async findByName(search: string) {
+    return await this.prisma.user.findMany({
+      where: {
+        name: { contains: search, mode: 'insensitive' },
+      },
+      include: {
+        profile: true,
+      },
+    });
   }
 }

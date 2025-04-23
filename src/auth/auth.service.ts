@@ -31,6 +31,13 @@ export class AuthService {
         email: dto.email,
         name: dto.name,
         password: hashPassword,
+        profile: {
+          create: {
+            avatar: null,
+            bio: '',
+            bgImage: null,
+          },
+        },
       },
     });
 
