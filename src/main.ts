@@ -8,7 +8,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.use(helmet());
   app.enableCors({
-    origin: ['http://localhost:5173'],
+    origin: 'http://localhost:5173',
     methods: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
     credentials: true,
   });
