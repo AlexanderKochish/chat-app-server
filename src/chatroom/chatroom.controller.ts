@@ -1,16 +1,19 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
 import { CreateChatroomDto } from './dto/create-chatroom.dto';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('chats')
 export class ChatroomController {
   constructor(private readonly chatroomService: ChatroomService) {}
 
+  @UseGuards(AuthGuard)
   @Post('create')
   async create(@Body() dto: CreateChatroomDto) {
     return await this.chatroomService.create(dto);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findAll(@Param(':id') id: string) {
     return await this.chatroomService.findAll(id);
