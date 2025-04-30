@@ -14,6 +14,7 @@ import { MessageService } from 'src/message/message.service';
   cors: {
     origin: 'http://localhost:5173',
   },
+  transport: ['websocket'],
 })
 export class ChatGateway {
   constructor(private messageService: MessageService) {}
@@ -23,7 +24,6 @@ export class ChatGateway {
   @SubscribeMessage('sendMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async findMessage(@MessageBody() data: CreateMessageDto) {
-    console.log(data);
     try {
       const saveMessage = await this.messageService.saveMessage(data);
       this.server.to(data.roomId).emit('newMessage', saveMessage);

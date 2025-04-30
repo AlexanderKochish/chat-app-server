@@ -11,11 +11,17 @@ export class UserService {
   }
 
   async findByName(search: string) {
+    if (!search.trim()) {
+      return [];
+    }
     return await this.prisma.user.findMany({
       where: {
         name: { contains: search, mode: 'insensitive' },
       },
-      include: {
+      select: {
+        id: true,
+        email: true,
+        name: true,
         profile: true,
       },
     });

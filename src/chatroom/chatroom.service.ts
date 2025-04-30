@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 // import { UpdateChatroomDto } from './dto/update-chatroom.dto';
 import { PrismaService } from 'src/services/prisma/prisma.service';
-import { CreateChatroomDto } from './dto/create-chatroom.dto';
 
 @Injectable()
 export class ChatroomService {
@@ -25,11 +24,8 @@ export class ChatroomService {
       },
     });
   }
-  async create(dto: CreateChatroomDto) {
-    const existingRoom = await this.findExistingRoom(
-      dto.currentUserId,
-      dto.targetUserId,
-    );
+  async create(userId: string, targetUserId: string) {
+    const existingRoom = await this.findExistingRoom(userId, targetUserId);
 
     if (existingRoom) {
       return existingRoom;
@@ -38,16 +34,16 @@ export class ChatroomService {
     return await this.prisma.chatRoom.create({
       data: {
         isGroup: false,
-        createdById: dto.currentUserId,
+        createdById: userId,
         members: {
           create: [
             {
-              userId: dto.currentUserId,
+              userId: userId,
               isMuted: false,
               isBanned: false,
             },
             {
-              userId: dto.targetUserId,
+              userId: targetUserId,
               isMuted: false,
               isBanned: false,
             },
@@ -57,7 +53,7 @@ export class ChatroomService {
     });
   }
 
-  async findAll(id: string) {
+  async findAllChatRoom(id: string) {
     return await this.prisma.chatRoom.findMany({
       where: {
         members: {
@@ -67,21 +63,40 @@ export class ChatroomService {
         },
       },
       include: {
-        members: true,
-        message: true,
+        members: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                profile: true,
+              },
+            },
+          },
+        },
+        messages: {
+          orderBy: {
+            text: 'desc',
+          },
+        },
       },
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} chatroom`;
-  // }
+  async findOneChat(roomId: string, userId: string) {
+    const room = await this.prisma.roomMembers.findFirst({
+      where: { roomId, userId },
+    });
 
-  // update(id: number, uDto: UpdateChatroomDto) {
-  //   return `This action updates a #${id} chatroom`;
-  // }
+    if (!room) {
+      throw new UnauthorizedException('Room not found');
+    }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} chatroom`;
-  // }
+    return await this.prisma.chatRoom.findFirst({
+      where: { id: room.roomId },
+      include: {
+        messages: true,
+      },
+    });
+  }
 }

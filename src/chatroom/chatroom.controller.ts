@@ -1,7 +1,15 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  Param,
+} from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
-import { CreateChatroomDto } from './dto/create-chatroom.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { AuthRequest } from 'src/auth/types/auth.interface';
 
 @Controller('chats')
 export class ChatroomController {
@@ -9,31 +17,25 @@ export class ChatroomController {
 
   @UseGuards(AuthGuard)
   @Post('create')
-  async create(@Body() dto: CreateChatroomDto) {
-    return await this.chatroomService.create(dto);
+  async create(
+    @Body() data: { targetUserId: string },
+    @Req() req: AuthRequest,
+  ) {
+    const { userId } = req['user'];
+    return await this.chatroomService.create(userId, data.targetUserId);
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
-  async findAll(@Param(':id') id: string) {
-    return await this.chatroomService.findAll(id);
+  @Get()
+  async findAll(@Req() req: AuthRequest) {
+    const user = req['user'];
+    return await this.chatroomService.findAllChatRoom(user.userId);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.chatroomService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(
-  //   @Param('id') id: string,
-  //   @Body() updateChatroomDto: UpdateChatroomDto,
-  // ) {
-  //   return this.chatroomService.update(+id, updateChatroomDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.chatroomService.remove(+id);
-  // }
+  @UseGuards(AuthGuard)
+  @Get(':roomId')
+  async findOneChat(@Param('roomId') roomId: string, @Req() req: AuthRequest) {
+    const userId = req['user'].userId;
+    return await this.chatroomService.findOneChat(roomId, userId);
+  }
 }

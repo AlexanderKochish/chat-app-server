@@ -4,13 +4,18 @@ import { PrismaService } from 'src/services/prisma/prisma.service';
 
 @Injectable()
 export class ProfileService {
-  constructor(
-    private prisma: PrismaService,
-    private userService: PrismaService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async findOwnProfile(id: string) {
-    return await this.prisma.profile.findUnique({ where: { userId: id } });
+    return await this.prisma.user.findUnique({
+      where: { id },
+      include: {
+        profile: true,
+        members: true,
+        createdRooms: true,
+        messages: true,
+      },
+    });
   }
 
   async updateProfile(id: string, uDto: UpdateProfileDto) {

@@ -50,7 +50,7 @@ model ChatRoom {
   createdBy   User? @relation(fields: [createdById], references: [id])
 
   members RoomMembers[]
-  message Message[]
+  messages Message[]
 }
 
 model Message {

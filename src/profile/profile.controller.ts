@@ -10,7 +10,7 @@ import {
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { AuthResponse } from 'src/auth/types/auth.interface';
+import { AuthRequest } from 'src/auth/types/auth.interface';
 
 @Controller('profile')
 export class ProfileController {
@@ -18,7 +18,7 @@ export class ProfileController {
 
   @UseGuards(AuthGuard)
   @Get('me')
-  async findOwnProfile(@Req() req: AuthResponse) {
+  async findOwnProfile(@Req() req: AuthRequest) {
     const user = req['user'];
     return await this.profileService.findOwnProfile(user.userId);
   }
