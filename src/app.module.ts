@@ -6,6 +6,7 @@ import { ProfileModule } from './profile/profile.module';
 import { ChatroomModule } from './chatroom/chatroom.module';
 import { MessageModule } from './message/message.module';
 import { EventsModule } from './events/events.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { EventsModule } from './events/events.module';
     ChatroomModule,
     MessageModule,
     EventsModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],

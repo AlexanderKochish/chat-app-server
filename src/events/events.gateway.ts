@@ -2,6 +2,8 @@ import { UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -9,6 +11,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from 'src/message/dto/create-message.dto';
 import { MessageService } from 'src/message/message.service';
+import { RedisService } from 'src/redis/redis.service';
 
 @WebSocketGateway({
   cors: {
@@ -16,10 +19,29 @@ import { MessageService } from 'src/message/message.service';
   },
   transport: ['websocket'],
 })
-export class ChatGateway {
-  constructor(private messageService: MessageService) {}
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    private messageService: MessageService,
+    private redisService: RedisService,
+  ) {}
+
   @WebSocketServer()
   server: Server;
+
+  async handleConnection(client: Socket) {
+    const userId = client.handshake.auth.userId as string;
+
+    if (userId) {
+      await this.redisService.notifyUserOnline(userId);
+    }
+  }
+  async handleDisconnect(client: Socket) {
+    const userId = client.handshake.auth.userId as string;
+
+    if (userId) {
+      await this.redisService.notifyUserOffline(userId);
+    }
+  }
 
   @SubscribeMessage('sendMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))

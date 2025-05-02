@@ -76,7 +76,7 @@ export class ChatroomService {
         },
         messages: {
           orderBy: {
-            text: 'desc',
+            createdAt: 'desc',
           },
         },
       },
