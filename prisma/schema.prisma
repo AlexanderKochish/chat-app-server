@@ -23,6 +23,8 @@ model Profile {
   id     String    @id @default(uuid())
   bgImage String?
   avatar  String?
+  avatarPublicId String?
+  bgImagePublicId String?
   bio    String?
   user   User    @relation(fields: [userId], references: [id])
   userId String    @unique
