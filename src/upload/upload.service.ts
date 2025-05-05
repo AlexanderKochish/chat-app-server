@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { v2 as CloudinaryType, UploadApiResponse } from 'cloudinary';
+import type {
+  v2 as CloudinaryType,
+  UploadApiOptions,
+  UploadApiResponse,
+} from 'cloudinary';
 
 @Injectable()
 export class UploadService {
@@ -18,6 +22,19 @@ export class UploadService {
         },
       );
       stream.end(file.buffer);
+    });
+  }
+
+  async uploadStreamBuffer(buffer: Buffer, options: UploadApiOptions) {
+    return new Promise((resolve, reject) => {
+      const stream = this.cloudinary.uploader.upload_stream(
+        options,
+        (error, result) => {
+          if (error) return reject(new Error(error.message));
+          resolve(result);
+        },
+      );
+      stream.end(buffer);
     });
   }
 

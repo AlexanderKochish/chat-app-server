@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class CreateMessageDto {
   @IsString()
@@ -9,4 +9,11 @@ export class CreateMessageDto {
 
   @IsString()
   ownerId: string;
+
+  @IsOptional()
+  images: {
+    name: string;
+    type: string;
+    buffer: number[];
+  }[];
 }

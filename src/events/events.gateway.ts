@@ -16,8 +16,8 @@ import { RedisService } from 'src/redis/redis.service';
 @WebSocketGateway({
   cors: {
     origin: 'http://localhost:5173',
+    credentials: true,
   },
-  transport: ['websocket'],
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -45,7 +45,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('sendMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async findMessage(@MessageBody() data: CreateMessageDto) {
+  async findMessage(
+    @MessageBody()
+    data: CreateMessageDto,
+  ) {
     try {
       const saveMessage = await this.messageService.saveMessage(data);
       this.server.to(data.roomId).emit('newMessage', saveMessage);

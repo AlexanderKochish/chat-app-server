@@ -58,6 +58,7 @@ model ChatRoom {
 model Message {
   id      String      @id @default(uuid())
   text    String
+  
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt()
@@ -67,6 +68,15 @@ model Message {
 
   owner User @relation(fields: [ownerId], references: [id])
   ownerId String 
+
+  images Image[]
+}
+
+model Image {
+  id String @id @default(uuid())
+  url  String
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String
 }
 
 model RoomMembers {

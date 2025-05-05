@@ -75,6 +75,7 @@ export class ChatroomService {
           },
         },
         messages: {
+          take: 1,
           orderBy: {
             createdAt: 'desc',
           },
@@ -95,7 +96,15 @@ export class ChatroomService {
     return await this.prisma.chatRoom.findFirst({
       where: { id: room.roomId },
       include: {
-        messages: true,
+        messages: {
+          include: {
+            images: true,
+          },
+          take: 20,
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
   }
