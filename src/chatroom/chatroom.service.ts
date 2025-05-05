@@ -100,10 +100,10 @@ export class ChatroomService {
           include: {
             images: true,
           },
-          take: 20,
           orderBy: {
             createdAt: 'desc',
           },
+          take: 20,
         },
       },
     });

@@ -13,7 +13,7 @@ export class MessageService {
   ) {}
 
   async saveMessage(dto: CreateMessageDto) {
-    if (!dto.text || dto.images?.length === 0) {
+    if (!dto.text && dto.images?.length === 0) {
       throw new BadRequestException('Message is not must be empty');
     }
 
@@ -39,6 +39,9 @@ export class MessageService {
         images: {
           create: imageUrl.map((url) => ({ url })),
         },
+      },
+      include: {
+        images: true,
       },
     });
   }
