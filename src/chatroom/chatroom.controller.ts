@@ -38,4 +38,11 @@ export class ChatroomController {
     const userId = req['user'].userId;
     return await this.chatroomService.findOneChat(roomId, userId);
   }
+
+  @Get(':roomId/companion')
+  @UseGuards(AuthGuard)
+  async getCompanion(@Param('roomId') roomId: string, @Req() req: AuthRequest) {
+    const userId = req['user'].userId;
+    return await this.chatroomService.getCompanion(roomId, userId);
+  }
 }

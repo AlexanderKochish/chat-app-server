@@ -108,4 +108,31 @@ export class ChatroomService {
       },
     });
   }
+
+  async getCompanion(roomId: string, userId: string) {
+    const room = await this.prisma.roomMembers.findFirst({
+      where: { roomId, userId },
+    });
+
+    if (!room) {
+      throw new UnauthorizedException('Room not found');
+    }
+
+    return await this.prisma.roomMembers.findFirst({
+      where: { roomId, NOT: { userId } },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+            profile: {
+              select: {
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
