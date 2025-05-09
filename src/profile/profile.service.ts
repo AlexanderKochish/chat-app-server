@@ -36,9 +36,7 @@ export class ProfileService {
     let profileAvatar = profile.profile?.avatar;
     if (file) {
       if (profile.profile?.avatarPublicId) {
-        await this.uploadService.removeImage(
-          profile.profile?.avatarPublicId as string,
-        );
+        await this.uploadService.removeImage(profile.profile?.avatarPublicId);
       }
       const uploadeImage = await this.uploadService.uploadImage(file);
 

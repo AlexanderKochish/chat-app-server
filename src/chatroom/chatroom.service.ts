@@ -84,7 +84,7 @@ export class ChatroomService {
     });
   }
 
-  async findOneChat(roomId: string, userId: string) {
+  async findOneChat(roomId: string, userId: string, cursor?: string) {
     const room = await this.prisma.roomMembers.findFirst({
       where: { roomId, userId },
     });
@@ -104,6 +104,8 @@ export class ChatroomService {
             createdAt: 'desc',
           },
           take: 20,
+          skip: cursor ? 1 : 0,
+          cursor: cursor ? { id: cursor } : undefined,
         },
       },
     });

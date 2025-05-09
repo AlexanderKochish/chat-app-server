@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   Param,
+  Query,
 } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
@@ -34,9 +35,13 @@ export class ChatroomController {
 
   @UseGuards(AuthGuard)
   @Get(':roomId')
-  async findOneChat(@Param('roomId') roomId: string, @Req() req: AuthRequest) {
+  async findOneChat(
+    @Param('roomId') roomId: string,
+    @Req() req: AuthRequest,
+    @Query('cursor') cursor?: string,
+  ) {
     const userId = req['user'].userId;
-    return await this.chatroomService.findOneChat(roomId, userId);
+    return await this.chatroomService.findOneChat(roomId, userId, cursor);
   }
 
   @Get(':roomId/companion')
