@@ -2,15 +2,15 @@ import {
   Controller,
   Post,
   Body,
-  HttpException,
-  HttpStatus,
   UnprocessableEntityException,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { Response } from 'express';
 import { SignInDto } from './dto/sign-in.dto';
+import { Cookies } from 'src/decorators/cookies.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -22,22 +22,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const token = await this.authService.signUp(dto);
+      const { accessToken, refreshToken } = await this.authService.signUp(dto);
 
-      if (!token) {
-        throw new HttpException(
-          'Token generation failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      res.cookie('token', token, {
-        httpOnly: true,
-        // secure: true,
-        maxAge: 1000 * 60 * 60 * 24,
-      });
-
-      return { message: 'Registration in successfully', token };
+      this.authService.setCookie(res, accessToken, refreshToken);
+      return { message: 'Registration in successfully' };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new UnprocessableEntityException(
@@ -53,22 +41,13 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      const token = await this.authService.signIn(dto.email, dto.password);
+      const { accessToken, refreshToken } = await this.authService.signIn(
+        dto.email,
+        dto.password,
+      );
 
-      if (!token) {
-        throw new HttpException(
-          'Token generation failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      res.cookie('token', token, {
-        httpOnly: true,
-        // secure: true,
-        maxAge: 1000 * 60 * 60 * 24,
-      });
-
-      return { message: 'Logged in successfully', token };
+      this.authService.setCookie(res, accessToken, refreshToken);
+      return { message: 'Logged in successfully' };
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new UnprocessableEntityException(
@@ -76,5 +55,46 @@ export class AuthController {
         );
       }
     }
+  }
+
+  @Post('refresh')
+  async refresh(
+    @Cookies('refreshToken') refreshToken: string,
+    @Cookies('token') accessToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!refreshToken || !accessToken) {
+      throw new UnauthorizedException('Missing tokens');
+    }
+
+    const payload =
+      await this.authService.verifyAccessTokenIgnoringExpiration(accessToken);
+
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+      await this.authService.refreshTokens(payload.userId, refreshToken);
+
+    this.authService.setCookie(res, newAccessToken, newRefreshToken);
+
+    return { message: 'Tokens refreshed' };
+  }
+
+  @Post('logout')
+  async logout(
+    @Cookies('token') accessToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!accessToken) {
+      throw new UnauthorizedException('Access token not found');
+    }
+
+    const payload =
+      await this.authService.verifyAccessTokenIgnoringExpiration(accessToken);
+
+    await this.authService.logout(payload.userId);
+
+    res.clearCookie('refreshToken');
+    res.clearCookie('token');
+
+    return { message: 'Logged out' };
   }
 }

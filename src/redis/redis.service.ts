@@ -1,13 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
 export class RedisService {
-  private redis = new Redis({
-    host: 'localhost',
-    port: 6379,
-    db: 0,
-  });
+  constructor(@Inject('REDIS') private readonly redis: Redis) {}
 
   async notifyUserOnline(userId: string) {
     await this.redis.set(`user:${userId}:online`, 'true', 'EX', 3000);
@@ -32,5 +28,14 @@ export class RedisService {
       {} as Record<string, boolean>,
     );
     return statuses;
+  }
+
+  async saveRefreshToken(userId: string, refreshToken: string) {
+    return await this.redis.set(
+      `refresh_token:${userId}`,
+      refreshToken,
+      'EX',
+      7 * 24 * 60 * 60,
+    );
   }
 }
