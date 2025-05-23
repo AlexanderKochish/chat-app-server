@@ -7,14 +7,20 @@ import {
   Req,
   Param,
   Query,
+  Patch,
+  Delete,
 } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { AuthRequest } from 'src/auth/types/auth.interface';
+import { MessageService } from 'src/message/message.service';
 
 @Controller('chats')
 export class ChatroomController {
-  constructor(private readonly chatroomService: ChatroomService) {}
+  constructor(
+    private readonly chatroomService: ChatroomService,
+    private readonly messageService: MessageService,
+  ) {}
 
   @UseGuards(AuthGuard)
   @Post('create')
@@ -44,10 +50,44 @@ export class ChatroomController {
     return await this.chatroomService.findOneChat(roomId, userId, cursor);
   }
 
-  @Get(':roomId/companion')
   @UseGuards(AuthGuard)
+  @Get(':roomId/images')
+  async getAllImagesOfChat(
+    @Param('roomId') roomId: string,
+    @Req() req: AuthRequest,
+  ) {
+    const userId = req['user'].userId;
+    return await this.chatroomService.getAllImagesOfChat(roomId, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':roomId/companion')
   async getCompanion(@Param('roomId') roomId: string, @Req() req: AuthRequest) {
     const userId = req['user'].userId;
     return await this.chatroomService.getCompanion(roomId, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':roomId/message')
+  async updateMessage(
+    @Param('roomId') roomId: string,
+    @Query('id') msgId: string,
+    @Body() data: { text: string },
+    @Req() req: AuthRequest,
+  ) {
+    const { text } = data;
+    const userId = req['user'].userId;
+    return await this.messageService.updateMessage(roomId, msgId, userId, text);
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':roomId/message')
+  async removeMessage(
+    @Param('roomId') roomId: string,
+    @Query('id') msgId: string,
+    @Req() req: AuthRequest,
+  ) {
+    const userId = req['user'].userId;
+    return await this.messageService.removeMessage(roomId, msgId, userId);
   }
 }

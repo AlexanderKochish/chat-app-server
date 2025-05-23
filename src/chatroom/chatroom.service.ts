@@ -111,6 +111,53 @@ export class ChatroomService {
     });
   }
 
+  async getAllImagesOfChat(roomId: string, userId: string) {
+    const room = await this.prisma.roomMembers.findFirst({
+      where: { roomId, userId },
+    });
+
+    if (!room) {
+      throw new UnauthorizedException('Room not found');
+    }
+
+    const data = await this.prisma.chatRoom.findMany({
+      where: { id: room.roomId },
+      include: {
+        messages: {
+          where: {
+            images: {
+              some: {
+                url: {
+                  not: '',
+                },
+              },
+            },
+          },
+          select: {
+            images: {
+              select: {
+                id: true,
+                url: true,
+                messageId: true,
+              },
+            },
+          },
+          // take: 20,
+          // skip: cursor ? 1 : 0,
+          // cursor: cursor ? { id: cursor } : undefined,
+        },
+      },
+    });
+
+    const images = data[0].messages.map(({ images }) => ({
+      messageId: images[0].messageId,
+      url: images[0].url,
+      id: images[0].id,
+    }));
+
+    return images;
+  }
+
   async getCompanion(roomId: string, userId: string) {
     const room = await this.prisma.roomMembers.findFirst({
       where: { roomId, userId },
