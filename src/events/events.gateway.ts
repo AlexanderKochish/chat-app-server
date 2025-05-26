@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from 'src/message/dto/create-message.dto';
+import { UpdateMessageDto } from 'src/message/dto/update-message.dto';
 import { MessageService } from 'src/message/message.service';
 import { RedisService } from 'src/redis/redis.service';
 
@@ -52,6 +53,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const saveMessage = await this.messageService.saveMessage(data);
       this.server.to(data.roomId).emit('newMessage', saveMessage);
+    } catch (err) {
+      console.error('Error while saving message:', err);
+      throw err;
+    }
+  }
+
+  @SubscribeMessage('updateMessage')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async updateMessage(@MessageBody() data: UpdateMessageDto) {
+    try {
+      const updatedMessage = await this.messageService.updateMessage(data);
+      this.server.to(data.roomId).emit('updateMessage', updatedMessage);
     } catch (err) {
       console.error('Error while saving message:', err);
       throw err;

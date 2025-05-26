@@ -51,13 +51,13 @@ export class MessageService {
     });
   }
 
-  async authorizeMessageAccess(roomId: string, msgId: string, userId: string) {
+  async authorizeMessageAccess(roomId: string, msgId: string, ownerId: string) {
     const room = await this.prisma.chatRoom.findUnique({
       where: { id: roomId },
       include: {
         members: {
           where: {
-            userId,
+            userId: ownerId,
           },
         },
       },
@@ -79,17 +79,17 @@ export class MessageService {
     return message;
   }
 
-  async updateMessage(
-    roomId: string,
-    msgId: string,
-    userId: string,
-    text: string,
-  ) {
-    await this.authorizeMessageAccess(roomId, msgId, userId);
+  async updateMessage(data: {
+    roomId: string;
+    msgId: string;
+    ownerId: string;
+    text: string;
+  }) {
+    await this.authorizeMessageAccess(data.roomId, data.msgId, data.ownerId);
     return await this.prisma.message.update({
-      where: { id: msgId },
+      where: { id: data.msgId },
       data: {
-        text,
+        text: data.text,
       },
     });
   }

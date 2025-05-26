@@ -7,7 +7,6 @@ import {
   Req,
   Param,
   Query,
-  Patch,
   Delete,
 } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
@@ -65,19 +64,6 @@ export class ChatroomController {
   async getCompanion(@Param('roomId') roomId: string, @Req() req: AuthRequest) {
     const userId = req['user'].userId;
     return await this.chatroomService.getCompanion(roomId, userId);
-  }
-
-  @UseGuards(AuthGuard)
-  @Patch(':roomId/message')
-  async updateMessage(
-    @Param('roomId') roomId: string,
-    @Query('id') msgId: string,
-    @Body() data: { text: string },
-    @Req() req: AuthRequest,
-  ) {
-    const { text } = data;
-    const userId = req['user'].userId;
-    return await this.messageService.updateMessage(roomId, msgId, userId, text);
   }
 
   @UseGuards(AuthGuard)
