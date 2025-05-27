@@ -94,8 +94,12 @@ export class MessageService {
     });
   }
 
-  async removeMessage(roomId: string, msgId: string, userId: string) {
-    await this.authorizeMessageAccess(roomId, msgId, userId);
-    return await this.prisma.message.delete({ where: { id: msgId } });
+  async removeMessage(data: {
+    roomId: string;
+    msgId: string;
+    ownerId: string;
+  }) {
+    await this.authorizeMessageAccess(data.roomId, data.msgId, data.ownerId);
+    return await this.prisma.message.delete({ where: { id: data.msgId } });
   }
 }

@@ -1,4 +1,4 @@
-import { UsePipes, ValidationPipe } from '@nestjs/common';
+import { ForbiddenException, UsePipes, ValidationPipe } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,6 +10,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CreateMessageDto } from 'src/message/dto/create-message.dto';
+import { DeleteMessageDto } from 'src/message/dto/delete-message.dto';
 import { UpdateMessageDto } from 'src/message/dto/update-message.dto';
 import { MessageService } from 'src/message/message.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -46,7 +47,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('sendMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async findMessage(
+  async sendMessage(
     @MessageBody()
     data: CreateMessageDto,
   ) {
@@ -66,7 +67,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const updatedMessage = await this.messageService.updateMessage(data);
       this.server.to(data.roomId).emit('updateMessage', updatedMessage);
     } catch (err) {
-      console.error('Error while saving message:', err);
+      console.error('Error while update message:', err);
+      throw err;
+    }
+  }
+
+  @SubscribeMessage('removeMessage')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async removeMessage(
+    @MessageBody() data: DeleteMessageDto,
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      const userId = client.handshake?.auth?.userId as string;
+
+      if (!userId) {
+        throw new ForbiddenException('Unauthorized');
+      }
+
+      if (userId !== data.ownerId) {
+        throw new ForbiddenException('Forbidden');
+      }
+
+      const removedMessage = await this.messageService.removeMessage(data);
+      this.server.to(data.roomId).emit('removeMessage', removedMessage);
+    } catch (err) {
+      console.error('Error while delete message:', err);
       throw err;
     }
   }
