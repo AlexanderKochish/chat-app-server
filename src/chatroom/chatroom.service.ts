@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-// import { UpdateChatroomDto } from './dto/update-chatroom.dto';
 import { PrismaService } from 'src/services/prisma/prisma.service';
 
 @Injectable()
