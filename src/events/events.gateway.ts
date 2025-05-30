@@ -78,9 +78,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('updateMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  async updateMessage(@MessageBody() data: UpdateMessageDto) {
+  async updateMessage(
+    @MessageBody() data: Omit<UpdateMessageDto, 'ownerId'>,
+    @ConnectedSocket() client: Socket,
+  ) {
     try {
-      const updatedMessage = await this.messageService.updateMessage(data);
+      const userId = client.handshake.auth.userId as string;
+
+      const updatedMessage = await this.messageService.updateMessage({
+        ...data,
+        ownerId: userId,
+      });
       this.server.to(data.roomId).emit('updateMessage', updatedMessage);
     } catch (err) {
       console.error('Error while update message:', err);

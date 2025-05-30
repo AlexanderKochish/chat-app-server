@@ -86,12 +86,19 @@ export class MessageService {
     text: string;
   }) {
     await this.authorizeMessageAccess(data.roomId, data.msgId, data.ownerId);
-    const existingMessage = await this.prisma.message.findUnique({
+    const message = await this.prisma.message.findUnique({
       where: { id: data.msgId },
-      select: { text: true },
+      select: { ownerId: true, text: true },
     });
 
-    const isEdited = existingMessage?.text !== data.text;
+    if (!message) {
+      throw new NotFoundException('Message not found');
+    }
+
+    if (message.ownerId !== data.ownerId) {
+      throw new ForbiddenException("You cannot edit someone else's message");
+    }
+    const isEdited = message.text !== data.text;
 
     return await this.prisma.message.update({
       where: { id: data.msgId },
