@@ -86,10 +86,18 @@ export class MessageService {
     text: string;
   }) {
     await this.authorizeMessageAccess(data.roomId, data.msgId, data.ownerId);
+    const existingMessage = await this.prisma.message.findUnique({
+      where: { id: data.msgId },
+      select: { text: true },
+    });
+
+    const isEdited = existingMessage?.text !== data.text;
+
     return await this.prisma.message.update({
       where: { id: data.msgId },
       data: {
         text: data.text,
+        edited: isEdited,
       },
     });
   }
