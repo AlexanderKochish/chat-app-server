@@ -45,6 +45,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('userTyping')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  handleTyping(
+    @MessageBody() data: { roomId: string; userId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    try {
+      client.to(data.roomId).emit('userTyping', {
+        userId: data.userId,
+      });
+    } catch (err) {
+      console.error('Error while typing message:', err);
+      throw err;
+    }
+  }
+
   @SubscribeMessage('sendMessage')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   async sendMessage(
