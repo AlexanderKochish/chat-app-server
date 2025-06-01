@@ -3,7 +3,7 @@ import { PrismaService } from 'src/services/prisma/prisma.service';
 
 @Injectable()
 export class ChatroomService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
   async findExistingRoom(currentUserId: string, targetUserId: string) {
     return await this.prisma.chatRoom.findFirst({
       where: {

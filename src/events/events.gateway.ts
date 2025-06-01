@@ -23,8 +23,8 @@ import { RedisService } from 'src/redis/redis.service';
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    private messageService: MessageService,
-    private redisService: RedisService,
+    private readonly messageService: MessageService,
+    private readonly redisService: RedisService,
   ) {}
 
   @WebSocketServer()

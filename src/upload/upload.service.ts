@@ -8,7 +8,7 @@ import type {
 @Injectable()
 export class UploadService {
   constructor(
-    @Inject('CLOUDINARY') private cloudinary: typeof CloudinaryType,
+    @Inject('CLOUDINARY') private readonly cloudinary: typeof CloudinaryType,
   ) {}
 
   async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse> {

@@ -21,7 +21,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwt: JwtService,
     private readonly redisService: RedisService,
-    @Inject('REDIS') private redis: Redis,
+    @Inject('REDIS') private readonly redis: Redis,
   ) {}
 
   async signUp(

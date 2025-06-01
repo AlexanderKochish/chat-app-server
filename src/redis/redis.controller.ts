@@ -4,7 +4,7 @@ import { RedisService } from './redis.service';
 
 @Controller()
 export class RedisController {
-  constructor(private redisService: RedisService) {}
+  constructor(private readonly redisService: RedisService) {}
 
   @EventPattern('user:online')
   async notifyUserOnline(@Payload() data: { userId: string }) {

@@ -6,8 +6,8 @@ import { UploadService } from 'src/upload/upload.service';
 @Injectable()
 export class ProfileService {
   constructor(
-    private prisma: PrismaService,
-    private uploadService: UploadService,
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
   ) {}
 
   async findOwnProfile(id: string) {

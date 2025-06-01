@@ -13,8 +13,8 @@ import { UploadApiResponse } from 'cloudinary';
 @Injectable()
 export class MessageService {
   constructor(
-    private prisma: PrismaService,
-    private uploadService: UploadService,
+    private readonly prisma: PrismaService,
+    private readonly uploadService: UploadService,
   ) {}
 
   async saveMessage(dto: CreateMessageDto) {
