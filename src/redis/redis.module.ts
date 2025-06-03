@@ -9,10 +9,16 @@ import Redis from 'ioredis';
     {
       provide: 'REDIS',
       useFactory: () => {
+        if (process.env.REDIS_URL) {
+          return new Redis(process.env.REDIS_URL, {
+            tls: {},
+          });
+        }
         return new Redis({
           host: process.env.REDIS_HOST ?? 'localhost',
           port: Number(process.env.REDIS_PORT) || 6379,
-          db: 0,
+          password: process.env.REDIS_PASSWORD ?? '',
+          tls: {},
         });
       },
     },
