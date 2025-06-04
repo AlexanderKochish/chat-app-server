@@ -146,14 +146,14 @@ export class AuthService {
     res.cookie('token', accessToken, {
       httpOnly: true,
       sameSite: 'strict',
-      domain: 'localhost',
+      secure: true,
       maxAge: 30 * 60 * 1000,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
-      domain: 'localhost',
+      secure: true,
       maxAge: 30 * 60 * 1000,
     });
   }
