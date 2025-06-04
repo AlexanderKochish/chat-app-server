@@ -25,12 +25,14 @@ async function bootstrap() {
           port: Number(url.port),
           password: url.password || undefined,
           ...(url.protocol === 'rediss:' ? { tls: {} } : {}),
+          connectTimeout: 10000,
         };
       })()
     : {
         host: process.env.REDIS_HOST || 'localhost',
         port: Number(process.env.REDIS_PORT) || 6379,
         password: process.env.REDIS_PASSWORD || undefined,
+        connectTimeout: 10000,
       };
 
   app.connectMicroservice<MicroserviceOptions>({

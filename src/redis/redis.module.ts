@@ -19,6 +19,8 @@ import Redis from 'ioredis';
             port: Number(process.env.REDIS_PORT) || 6379,
             username: process.env.REDIS_USERNAME,
             password: process.env.REDIS_PASSWORD || undefined,
+            tls: {},
+            connectTimeout: 10000,
           });
         }
       },
