@@ -10,7 +10,7 @@ import Redis from 'ioredis';
       provide: 'REDIS',
       useFactory: () => {
         if (process.env.REDIS_URL) {
-          return new Redis(process.env.REDIS_URL, {
+          return new Redis(process.env.REDIS_URL + '?family=0', {
             tls: {},
           });
         } else {
