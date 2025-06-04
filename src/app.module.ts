@@ -6,16 +6,17 @@ import { ProfileModule } from './profile/profile.module';
 import { ChatroomModule } from './chatroom/chatroom.module';
 import { MessageModule } from './message/message.module';
 import { EventsModule } from './events/events.module';
-import { RedisModule } from './redis/redis.module';
 import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './configs/cloudinary/cloudinary.module';
 import { ConfigModule } from '@nestjs/config';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    RedisModule,
     PrismaModule,
     AuthModule,
     UserModule,
@@ -23,7 +24,6 @@ import { ConfigModule } from '@nestjs/config';
     ChatroomModule,
     MessageModule,
     EventsModule,
-    RedisModule,
     UploadModule,
     CloudinaryModule,
   ],
