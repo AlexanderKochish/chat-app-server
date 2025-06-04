@@ -21,14 +21,14 @@ async function bootstrap() {
     ? (() => {
         const url = new URL(redisUrl);
         return {
-          host: url.hostname + '?family=0',
+          host: url.hostname,
           port: Number(url.port),
           password: url.password || undefined,
           ...(url.protocol === 'rediss:' ? { tls: {} } : {}),
         };
       })()
     : {
-        host: process.env.REDIS_HOST + '?family=0' || 'localhost',
+        host: process.env.REDIS_HOST || 'localhost',
         port: Number(process.env.REDIS_PORT) || 6379,
         password: process.env.REDIS_PASSWORD || undefined,
       };
