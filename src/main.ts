@@ -40,6 +40,8 @@ async function bootstrap() {
     options: redisOptions,
   });
   await app.startAllMicroservices();
+  console.log('[DEBUG] REDIS_URL:', process.env.REDIS_URL);
+
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
