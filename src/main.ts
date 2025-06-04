@@ -21,7 +21,7 @@ async function bootstrap() {
     ? (() => {
         const url = new URL(redisUrl);
         return {
-          host: url.hostname,
+          host: url.hostname + '?family=0',
           port: Number(url.port),
           password: url.password || undefined,
           ...(url.protocol === 'rediss:' ? { tls: {} } : {}),
