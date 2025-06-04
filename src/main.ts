@@ -15,15 +15,27 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
+  const redisUrl = process.env.REDIS_URL;
+
+  const redisOptions = redisUrl
+    ? (() => {
+        const url = new URL(redisUrl);
+        return {
+          host: url.hostname,
+          port: Number(url.port),
+          password: url.password || undefined,
+          ...(url.protocol === 'rediss:' ? { tls: {} } : {}),
+        };
+      })()
+    : {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT) || 6379,
+        password: process.env.REDIS_PASSWORD || undefined,
+      };
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,
-    options: {
-      family: 0,
-      host: process.env.REDIS_HOST || 'localhost',
-      port: Number(process.env.REDIS_PORT) || 6379,
-      username: process.env.REDIS_USERNAME || 'default',
-      password: process.env.REDIS_PASSWORD || undefined,
-    },
+    options: redisOptions,
   });
   await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
